@@ -7,7 +7,7 @@ import InputForm from './components/InputForm';
 import NameEntry from './components/NameEntry';
 import ResultDisplay from './components/ResultDisplay';
 import Footer from './components/Footer';
-import { HelpCircle, RefreshCcw, Moon, Sun, ArrowLeft, Sparkles, Pencil, Cpu, Gift } from 'lucide-react';
+import { HelpCircle, RefreshCcw, Moon, Sun, ArrowLeft, Sparkles, Pencil, Cpu, Gift, AlertCircle } from 'lucide-react';
 
 const App: React.FC = () => {
   const [userName, setUserName] = useState<string>('');
@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<EvaResponse | null>(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Toggle Dark Mode
   const toggleDarkMode = () => {
@@ -30,19 +31,33 @@ const App: React.FC = () => {
 
   const handleFormSubmit = async (input: UserInput) => {
     setIsLoading(true);
-    const response = await generateAppPlan(input, userName);
-    setResult(response);
-    setIsLoading(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setError(null);
+    try {
+        const response = await generateAppPlan(input, userName);
+        if (response) {
+            setResult(response);
+            // 성공했을 때만 최상단으로 이동하여 결과를 보여줌
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        } else {
+            setError("기획안을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        }
+    } catch (err) {
+        setError("네트워크 연결을 확인하고 다시 시도해주세요.");
+        console.error(err);
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
     setResult(null);
+    setError(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const getBackgroundClass = () => {
-      // Pastel Rainbow Gradient
       return "bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900";
   };
 
@@ -118,7 +133,7 @@ const App: React.FC = () => {
                 </div>
                 
                 <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white brand-font mb-4 tracking-tight drop-shadow-sm leading-tight">
-                  <span className="block text-2xl md:text-3xl text-gray-500 dark:text-gray-400 font-sans mb-2 font-normal">데미안님의 상상이 현실이 되는 곳,</span>
+                  <span className="block text-2xl md:text-3xl text-gray-500 dark:text-gray-400 font-sans mb-2 font-normal">{userName}님의 상상이 현실이 되는 곳,</span>
                   Eva <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400">Creative Studio</span>
                 </h1>
                 
@@ -155,6 +170,15 @@ const App: React.FC = () => {
               </header>
 
               <main className="w-full">
+                {error && (
+                    <div className="max-w-4xl mx-auto mb-8 animate-fade-in">
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-2xl flex items-center gap-3 text-red-700 dark:text-red-300 font-bold">
+                            <AlertCircle size={24} />
+                            <span>{error}</span>
+                        </div>
+                    </div>
+                )}
+                
                 {!result ? (
                   <InputForm onSubmit={handleFormSubmit} isLoading={isLoading} userName={userName} />
                 ) : (

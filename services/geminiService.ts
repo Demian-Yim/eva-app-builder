@@ -55,7 +55,8 @@ export const generateAppPlan = async (input: UserInput, userName: string): Promi
   try {
     const apiKey = process.env.API_KEY;
     if (!apiKey) {
-        throw new Error("API Key not found");
+        console.error("API Key is missing from process.env.API_KEY");
+        return null;
     }
 
     const ai = new GoogleGenAI({ apiKey });
@@ -84,7 +85,7 @@ export const generateAppPlan = async (input: UserInput, userName: string): Promi
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: promptText,
       config: {
         responseMimeType: "application/json",
@@ -93,10 +94,15 @@ export const generateAppPlan = async (input: UserInput, userName: string): Promi
     });
 
     const text = response.text;
-    if (!text) return null;
+    if (!text) throw new Error("Empty response from AI");
     
-    // Add IDs if missing (safety check)
     const parsed = JSON.parse(text) as EvaResponse;
+    
+    // Safety check for data integrity
+    if (!parsed.recommendations || !Array.isArray(parsed.recommendations)) {
+        throw new Error("Invalid response format: missing recommendations");
+    }
+
     parsed.recommendations = parsed.recommendations.map((rec, index) => ({
         ...rec,
         id: index
@@ -105,7 +111,7 @@ export const generateAppPlan = async (input: UserInput, userName: string): Promi
     return parsed;
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error details:", error);
     return null;
   }
 };
