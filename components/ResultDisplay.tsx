@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { EvaResponse } from '../types';
-import { Check, Clipboard, Target, Layout, Database, Workflow, Bot, MousePointerClick, Code2, Layers, ExternalLink, Smartphone, Monitor, MessageCircle, Sparkles, Smile } from 'lucide-react';
+import { Check, Clipboard, Target, Layout, Database, Workflow, Bot, MousePointerClick, ExternalLink, Sparkles, Smile } from 'lucide-react';
 
 interface ResultDisplayProps {
   data: EvaResponse;

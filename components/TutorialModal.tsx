@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { X, ArrowRight, Sparkles, MonitorSmartphone, Rocket, Lightbulb } from 'lucide-react';
+import { X, ArrowRight, Sparkles, Rocket, Lightbulb } from 'lucide-react';
 
 interface TutorialModalProps {
   onClose: () => void;

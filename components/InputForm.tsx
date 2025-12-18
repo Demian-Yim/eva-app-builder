@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { UserInput } from '../types';
 import { Briefcase, User, Star, Frown, Send, Loader2, Plus, Check, Keyboard } from 'lucide-react';
 
@@ -9,7 +8,7 @@ interface InputFormProps {
   userName: string;
 }
 
-const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading, userName }) => {
+const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
   const [input, setInput] = useState<UserInput>({
     job: '',
     rank: '',
