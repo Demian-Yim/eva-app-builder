@@ -34,31 +34,21 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d8b4fe; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #c084fc; 
-        }
-        .brand-font {
-            font-family: 'Jua', cursive;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c084fc; }
+        .brand-font { font-family: 'Jua', cursive; }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
         .dark .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        body { font-family: 'Gowun Dodum', sans-serif; overflow-x: hidden; }
     </style>
 <script type="importmap">
 {
@@ -74,7 +64,7 @@
 }
 </script>
 </head>
-<body>
+<body class="transition-colors duration-500">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
