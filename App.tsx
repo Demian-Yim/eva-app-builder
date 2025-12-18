@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UserInput, EvaResponse } from './types';
 import { generateAppPlan } from './services/geminiService';
 import TutorialModal from './components/TutorialModal';
@@ -18,10 +18,16 @@ const App: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Toggle Dark Mode
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  // 다크모드 설정 유지
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
 
   const handleNameSubmit = (name: string) => {
     setUserName(name);
@@ -32,19 +38,22 @@ const App: React.FC = () => {
   const handleFormSubmit = async (input: UserInput) => {
     setIsLoading(true);
     setError(null);
+    
+    // 버튼 클릭 즉시 상단으로 스크롤하여 로딩 애니메이션과 진행 단계를 보여줌
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     try {
         const response = await generateAppPlan(input, userName);
         if (response) {
             setResult(response);
-            // 성공했을 때만 최상단으로 이동하여 결과를 보여줌
-            setTimeout(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 100);
         } else {
             setError("기획안을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            // 오류 시에도 상단으로 스크롤 (이미 위에서 했지만 명시적으로)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     } catch (err) {
         setError("네트워크 연결을 확인하고 다시 시도해주세요.");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         console.error(err);
     } finally {
         setIsLoading(false);
@@ -57,124 +66,114 @@ const App: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getBackgroundClass = () => {
-      return "bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-slate-900 dark:via-purple-950 dark:to-slate-900";
-  };
-
-  const ProcessStep = ({ icon, text, step, active }: { icon: React.ReactNode, text: string, step: number, active: boolean }) => (
-    <div className={`flex flex-col items-center relative z-10 ${active ? 'opacity-100 scale-105' : 'opacity-60 grayscale'}`}>
-        <div className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg mb-2 transition-all duration-300
-            ${active ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-300 ring-4 ring-purple-100 dark:ring-purple-900' : 'bg-gray-200 dark:bg-slate-800 text-gray-500'}`}>
+  const ProcessStep = ({ icon, text, step, active, completed }: { icon: React.ReactNode, text: string, step: number, active: boolean, completed: boolean }) => (
+    <div className={`flex flex-col items-center relative z-10 transition-all duration-500 ${active || completed ? 'opacity-100 scale-105' : 'opacity-40 grayscale'}`}>
+        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-xl mb-2 transition-all duration-500
+            ${completed ? 'bg-green-400 text-white' : active ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-300 ring-4 ring-purple-200 dark:ring-purple-900 animate-pulse' : 'bg-gray-200 dark:bg-slate-800 text-gray-500'}`}>
             {icon}
         </div>
-        <span className="text-xs md:text-sm font-bold text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-black/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
+        <span className={`text-xs md:text-sm font-black px-3 py-1 rounded-full backdrop-blur-md border transition-colors
+            ${active ? 'bg-purple-600 text-white border-purple-400' : 'bg-white/50 dark:bg-black/20 text-gray-700 dark:text-gray-300 border-transparent'}`}>
             {step}. {text}
         </span>
     </div>
   );
 
   return (
-    <div className={`${darkMode ? 'dark' : ''} w-full`}>
-      <div className={`min-h-screen w-full transition-colors duration-500 ${getBackgroundClass()} text-gray-800 dark:text-gray-100 font-sans selection:bg-purple-200 dark:selection:bg-purple-500`}>
+    <div className={`${darkMode ? 'dark' : ''} min-h-screen w-full font-sans`}>
+      <div className="min-h-screen w-full transition-colors duration-700 bg-gradient-to-br from-[#FFF5F7] via-[#F3F0FF] to-[#E0F7FA] dark:from-slate-950 dark:via-purple-950 dark:to-slate-900 text-slate-800 dark:text-slate-100">
         
-        {/* Top Navigation */}
-        <div className="fixed top-4 right-4 z-40 flex gap-2 md:gap-3">
+        {/* Navigation Bar */}
+        <div className="fixed top-6 right-6 z-[60] flex gap-3">
           <button 
             onClick={toggleDarkMode}
-            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur text-yellow-500 dark:text-yellow-400 px-3 py-2 rounded-full shadow-lg hover:scale-110 transition-all border border-white/50"
-            aria-label="Toggle Dark Mode"
+            className="w-12 h-12 flex items-center justify-center bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl text-amber-500 dark:text-amber-300 rounded-full shadow-2xl border border-white/50 hover:scale-110 active:scale-95 transition-all"
           >
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            {darkMode ? <Sun size={24} /> : <Moon size={24} />}
           </button>
 
           {isNameSubmitted && (
              <button 
                 onClick={() => setShowTutorial(true)}
-                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur text-indigo-600 dark:text-indigo-300 px-4 py-2 rounded-full shadow-lg text-sm font-bold flex items-center gap-2 hover:bg-indigo-50 dark:hover:bg-slate-700 transition-all border border-white/50"
+                className="px-5 py-2 flex items-center gap-2 bg-indigo-500 text-white rounded-full shadow-2xl hover:bg-indigo-600 hover:scale-105 active:scale-95 transition-all font-bold text-sm"
             >
-                <HelpCircle size={18} /> <span className="hidden md:inline">사용법</span>
+                <HelpCircle size={20} /> <span className="hidden sm:inline">사용법</span>
             </button>
           )}
           
           {result && (
               <button 
-              onClick={handleReset}
-              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur text-pink-600 dark:text-pink-300 px-4 py-2 rounded-full shadow-lg text-sm font-bold flex items-center gap-2 hover:bg-pink-50 dark:hover:bg-slate-700 transition-all border border-white/50"
+                onClick={handleReset}
+                className="px-5 py-2 flex items-center gap-2 bg-pink-500 text-white rounded-full shadow-2xl hover:bg-pink-600 hover:scale-105 active:scale-95 transition-all font-bold text-sm"
               >
-              <RefreshCcw size={18} /> <span className="hidden md:inline">처음으로</span>
+                <RefreshCcw size={20} /> <span className="hidden sm:inline">처음으로</span>
               </button>
           )}
         </div>
 
-        {/* 1. Name Entry */}
-        {!isNameSubmitted && (
+        {!isNameSubmitted ? (
            <NameEntry onNameSubmit={handleNameSubmit} />
-        )}
-
-        {/* 2. Main App */}
-        {isNameSubmitted && (
+        ) : (
           <>
             {showTutorial && <TutorialModal onClose={() => setShowTutorial(false)} userName={userName} />}
 
-            <div className="container mx-auto px-4 py-12 md:py-16 flex flex-col items-center animate-fade-in relative">
+            <div className="container mx-auto px-4 py-16 flex flex-col items-center">
               
-              <header className="text-center mb-10 w-full max-w-4xl">
-                {!result && (
-                  <button 
-                    onClick={() => setIsNameSubmitted(false)}
-                    className="absolute top-4 left-4 md:static md:mb-6 text-gray-500 hover:text-purple-600 dark:hover:text-purple-300 flex items-center gap-2 text-sm font-bold transition-colors"
-                  >
-                    <ArrowLeft size={16} /> <span className="hidden md:inline">이름 다시 입력</span>
-                  </button>
-                )}
-
-                <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full text-sm font-extrabold mb-4 shadow-sm border border-white/40 backdrop-blur-md bg-white/40 dark:bg-white/5 text-purple-700 dark:text-purple-300 animate-pulse">
-                   <Sparkles size={14} /> Eva App Builder
+              <header className="text-center mb-16 w-full max-w-4xl animate-fade-in">
+                <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full text-xs font-black mb-6 shadow-xl border border-white/50 bg-white/40 dark:bg-slate-800/40 text-purple-700 dark:text-purple-300 tracking-widest uppercase">
+                   <Sparkles size={14} className="animate-spin-slow" /> Eva App Builder v2.5
                 </div>
                 
-                <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white brand-font mb-4 tracking-tight drop-shadow-sm leading-tight">
-                  <span className="block text-2xl md:text-3xl text-gray-500 dark:text-gray-400 font-sans mb-2 font-normal">{userName}님의 상상이 현실이 되는 곳,</span>
-                  Eva <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400">Creative Studio</span>
+                <h1 className="text-4xl md:text-7xl font-bold brand-font mb-6 tracking-tight leading-tight">
+                  <span className="block text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-sans mb-4 font-normal">데미안님의 상상이 현실이 되는 곳,</span>
+                  Eva <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#A78BFA] via-[#F472B6] to-[#FB923C]">Creative Studio</span>
                 </h1>
                 
-                {/* Process Guide */}
-                <div className="mt-10 mb-2 relative">
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gray-300 dark:via-slate-600 to-transparent -translate-y-1/2 z-0"></div>
-                    <div className="flex justify-between max-w-lg mx-auto w-full relative">
+                {/* Process Guide (Usage Guide Integration) */}
+                <div className="mt-12 mb-4 relative max-w-2xl mx-auto px-4">
+                    <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-200 dark:bg-slate-800 -translate-y-1/2 z-0 rounded-full"></div>
+                    <div className="flex justify-between w-full relative">
                         <ProcessStep 
                             step={1} 
-                            icon={<span className="text-xl">👋</span>} 
-                            text="시작" 
-                            active={true} 
+                            icon={<span className="text-2xl">👋</span>} 
+                            text="환영" 
+                            active={false}
+                            completed={true}
                         />
                         <ProcessStep 
                             step={2} 
-                            icon={<Pencil size={20} />} 
+                            icon={<Pencil size={24} />} 
                             text="입력" 
-                            active={!result} 
+                            active={!result && !isLoading} 
+                            completed={!!result || isLoading}
                         />
                         <ProcessStep 
                             step={3} 
-                            icon={<Cpu size={20} />} 
+                            icon={<Cpu size={24} />} 
                             text="생성" 
-                            active={isLoading || result !== null} 
+                            active={isLoading} 
+                            completed={!!result}
                         />
                         <ProcessStep 
                             step={4} 
-                            icon={<Gift size={20} />} 
+                            icon={<Gift size={24} />} 
                             text="완성" 
-                            active={result !== null} 
+                            active={!!result} 
+                            completed={false}
                         />
                     </div>
                 </div>
               </header>
 
-              <main className="w-full">
+              <main className="w-full relative z-10">
                 {error && (
-                    <div className="max-w-4xl mx-auto mb-8 animate-fade-in">
-                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-2xl flex items-center gap-3 text-red-700 dark:text-red-300 font-bold">
-                            <AlertCircle size={24} />
-                            <span>{error}</span>
+                    <div className="max-w-3xl mx-auto mb-12 animate-fade-in">
+                        <div className="bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800 p-6 rounded-[2rem] flex items-center gap-4 text-red-700 dark:text-red-300 font-bold shadow-2xl shadow-red-100 dark:shadow-none">
+                            <AlertCircle size={32} className="flex-shrink-0" />
+                            <div>
+                                <p className="text-lg">앗! 문제가 발생했어요.</p>
+                                <p className="text-sm font-medium opacity-80">{error}</p>
+                            </div>
                         </div>
                     </div>
                 )}

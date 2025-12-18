@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { EvaResponse } from '../types';
-import { Check, Clipboard, Target, Layout, Database, Workflow, Bot, MousePointerClick, ExternalLink, Sparkles, Smile } from 'lucide-react';
+import { Check, Clipboard, Target, Layout, Database, Workflow, Bot, MousePointerClick, ExternalLink, Sparkles, Smile, Rocket, Lightbulb, MessageSquareQuote } from 'lucide-react';
 
 interface ResultDisplayProps {
   data: EvaResponse;
@@ -12,16 +13,11 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ data }) => {
 
   const selectedApp = data.recommendations[selectedAppIndex];
 
-  // Colors for Cards (Pastel variations)
-  const cardColors = [
-      'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800',
-      'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
-      'bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800'
-  ];
-  const activeCardColors = [
-      'ring-purple-400 bg-white dark:bg-slate-800',
-      'ring-blue-400 bg-white dark:bg-slate-800',
-      'ring-pink-400 bg-white dark:bg-slate-800'
+  // 파스텔 톤 컬러 팔레트 (4도 이상)
+  const cardStyles = [
+      { bg: 'bg-[#F0F4FF]', darkBg: 'dark:bg-indigo-900/20', border: 'border-indigo-200', text: 'text-indigo-700', activeRing: 'ring-indigo-400' },
+      { bg: 'bg-[#FFF0F6]', darkBg: 'dark:bg-pink-900/20', border: 'border-pink-200', text: 'text-pink-700', activeRing: 'ring-pink-400' },
+      { bg: 'bg-[#F0FFF4]', darkBg: 'dark:bg-emerald-900/20', border: 'border-emerald-200', text: 'text-emerald-700', activeRing: 'ring-emerald-400' }
   ];
 
   const handleCopyPrompt = () => {
@@ -59,68 +55,68 @@ ${promptData.finalRequest}
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-12 animate-fade-in pb-20">
+    <div className="w-full max-w-6xl mx-auto space-y-16 animate-fade-in pb-32">
       
-      {/* 1. User Understanding (Chat Bubble Style) */}
-      <section className="flex gap-4 items-start">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0 shadow-md">
-            <Bot className="text-white w-7 h-7" />
+      {/* 1. 상황 분석 섹션 */}
+      <section className="flex gap-6 items-start max-w-4xl mx-auto">
+        <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0 shadow-2xl rotate-3">
+            <Bot className="text-white w-9 h-9" />
         </div>
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl rounded-tl-none p-6 md:p-8 shadow-lg border border-purple-100 dark:border-slate-700 flex-1 relative">
-            <h3 className="text-xl font-bold brand-font mb-3 text-purple-800 dark:text-purple-300 flex items-center gap-2">
-                <Target className="w-5 h-5" /> 데미안님의 상황 분석
+        <div className="glass-panel dark:bg-slate-800/80 rounded-[2.5rem] rounded-tl-none p-8 md:p-10 shadow-2xl flex-1 relative border-indigo-100 dark:border-slate-700">
+            <h3 className="text-2xl font-black brand-font mb-4 text-indigo-800 dark:text-indigo-300 flex items-center gap-2">
+                <Target className="w-6 h-6" /> 데미안님의 핵심 니즈 파악
             </h3>
-            <p className="text-gray-800 dark:text-gray-100 whitespace-pre-wrap leading-relaxed text-lg font-medium">
+            <p className="text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed text-xl font-medium italic">
             "{data.userUnderstanding}"
             </p>
-            <div className="absolute -left-2 top-0 w-4 h-4 bg-white/80 dark:bg-slate-800/80 transform rotate-45 border-l border-b border-purple-100 dark:border-slate-700"></div>
+            <div className="absolute -left-2 top-0 w-6 h-6 bg-inherit transform rotate-45 border-l border-b border-inherit"></div>
         </div>
       </section>
 
-      {/* 2. App Selection (Cards) */}
+      {/* 2. 앱 추천 섹션 */}
       <section>
-        <div className="text-center mb-8">
-            <span className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300 px-4 py-1.5 rounded-full text-sm font-bold mb-3 inline-block">
-                Solution
+        <div className="text-center mb-12">
+            <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 px-6 py-2 rounded-full text-sm font-black mb-4 inline-block tracking-tighter">
+                DEMIAN'S CUSTOM SOLUTIONS
             </span>
-            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white brand-font">
-            3가지 맞춤 앱을 제안해요
+            <h3 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white brand-font tracking-tight">
+            데미안님을 위한 3가지 솔루션
             </h3>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-8 px-4">
           {data.recommendations.map((app, idx) => {
             const isSelected = selectedAppIndex === idx;
+            const style = cardStyles[idx % cardStyles.length];
             return (
               <button 
                 key={idx} 
                 onClick={() => setSelectedAppIndex(idx)}
-                className={`relative rounded-3xl p-6 text-left transition-all duration-300 flex flex-col h-full group border-2
+                className={`relative rounded-[2.5rem] p-8 text-left transition-all duration-500 flex flex-col h-full border-2 overflow-hidden group
                   ${isSelected 
-                    ? `${activeCardColors[idx]} ring-4 shadow-xl scale-[1.02] z-10 border-transparent` 
-                    : `${cardColors[idx]} hover:scale-[1.01] hover:shadow-lg opacity-80 hover:opacity-100`
+                    ? `bg-white dark:bg-slate-800 ring-8 ${style.activeRing} shadow-2xl scale-[1.05] z-10 border-transparent` 
+                    : `${style.bg} ${style.darkBg} ${style.border} hover:scale-[1.02] hover:shadow-xl opacity-70 hover:opacity-100`
                   }`}
               >
                 {isSelected && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
-                    <Check size={12} strokeWidth={3} /> Picked
+                  <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-black px-4 py-1.5 rounded-bl-2xl uppercase tracking-widest shadow-md">
+                    SELECTED
                   </div>
                 )}
                 
-                <div className="mb-4">
-                  <h4 className={`text-xl md:text-2xl font-bold mb-2 leading-tight ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-200'}`}>
+                <div className="mb-6">
+                  <h4 className={`text-2xl md:text-3xl font-black mb-3 leading-tight brand-font ${isSelected ? 'text-slate-900 dark:text-white' : style.text}`}>
                     {app.name}
                   </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-bold">
                     {app.description}
                   </p>
                 </div>
 
-                <div className="mt-auto space-y-2">
+                <div className="mt-auto flex flex-wrap gap-2">
                    {app.features.slice(0, 3).map((feat, i) => (
-                    <div key={i} className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 bg-white/50 dark:bg-black/20 p-2 rounded-lg">
-                       <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 bg-gray-400`} />
-                       {feat}
+                    <div key={i} className="text-[11px] font-black text-slate-500 dark:text-slate-400 flex items-center gap-1.5 bg-white/60 dark:bg-slate-900/60 px-3 py-1.5 rounded-full border border-slate-100 dark:border-slate-700">
+                       <Sparkles size={10} className="text-amber-500" /> {feat}
                     </div>
                   ))}
                 </div>
@@ -130,34 +126,33 @@ ${promptData.finalRequest}
         </div>
       </section>
 
-      {/* 3. Detailed Design & Prompt Display */}
-      <div key={selectedAppIndex} className="space-y-8 animate-fade-in">
+      {/* 3. 상세 기획 및 프롬프트 */}
+      <div key={selectedAppIndex} className="space-y-12 animate-fade-in px-4">
           
-          {/* Design Detail Box */}
-          <section className="bg-white/90 dark:bg-slate-800/90 backdrop-blur rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/50 dark:border-slate-600">
-             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-8 border-b border-gray-100 dark:border-slate-700 gap-4">
+          {/* 설계도 박스 */}
+          <section className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl rounded-[3rem] p-10 md:p-16 shadow-2xl border border-white/50 dark:border-slate-700">
+             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 pb-10 border-b border-slate-100 dark:border-slate-700 gap-6">
                 <div>
-                    <h3 className="text-3xl font-bold text-gray-900 dark:text-white brand-font mb-2">
-                    '{selectedApp.name}' 설계도
+                    <h3 className="text-4xl font-black text-slate-900 dark:text-white brand-font mb-3">
+                    '{selectedApp.name}' 시스템 아키텍처
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400">개발 지식이 없어도 이해할 수 있게 정리했어요.</p>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">데미안님의 비즈니스 효율을 극대화할 수 있도록 설계되었습니다.</p>
                 </div>
-                <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-4 py-2 rounded-xl font-bold text-sm">
-                    난이도: {selectedApp.difficulty}
+                <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-6 py-3 rounded-2xl font-black text-sm border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                    구현 난이도: {selectedApp.difficulty}
                 </div>
              </div>
 
-            <div className="grid gap-12 md:grid-cols-2">
-              {/* Left Column */}
-              <div className="space-y-8">
+            <div className="grid gap-16 md:grid-cols-2">
+              <div className="space-y-10">
                 <div>
-                  <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                     <span className="p-2 bg-indigo-100 text-indigo-600 rounded-lg"><Layout size={20} /></span>
-                     화면 구성
+                  <h4 className="flex items-center gap-3 text-xl font-black text-slate-900 dark:text-slate-100 mb-6 brand-font">
+                     <div className="p-3 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 rounded-2xl shadow-inner"><Layout size={24} /></div>
+                     사용자 인터페이스(UI) 구성
                   </h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {selectedApp.detailedDesign.structure.map((s, i) => (
-                      <span key={i} className="px-3 py-1.5 bg-indigo-50 dark:bg-slate-700 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-bold border border-indigo-100 dark:border-slate-600">
+                      <span key={i} className="px-5 py-2.5 bg-indigo-50 dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 rounded-xl text-sm font-black border border-indigo-100 dark:border-slate-700 shadow-sm">
                         {s}
                       </span>
                     ))}
@@ -165,13 +160,13 @@ ${promptData.finalRequest}
                 </div>
 
                 <div>
-                  <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                     <span className="p-2 bg-pink-100 text-pink-600 rounded-lg"><MousePointerClick size={20} /></span>
-                     핵심 버튼
+                  <h4 className="flex items-center gap-3 text-xl font-black text-slate-900 dark:text-slate-100 mb-6 brand-font">
+                     <div className="p-3 bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 rounded-2xl shadow-inner"><MousePointerClick size={24} /></div>
+                     핵심 인터랙션 요소
                   </h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {selectedApp.detailedDesign.buttons.map((b, i) => (
-                      <span key={i} className="px-3 py-1.5 bg-pink-50 dark:bg-slate-700 text-pink-700 dark:text-pink-300 rounded-lg text-sm font-bold border border-pink-100 dark:border-slate-600">
+                      <span key={i} className="px-5 py-2.5 bg-pink-50 dark:bg-slate-900 text-pink-700 dark:text-pink-300 rounded-xl text-sm font-black border border-pink-100 dark:border-slate-700 shadow-sm">
                         {b}
                       </span>
                     ))}
@@ -179,27 +174,26 @@ ${promptData.finalRequest}
                 </div>
               </div>
 
-              {/* Right Column */}
-              <div className="space-y-8">
+              <div className="space-y-10">
                 <div>
-                   <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                     <span className="p-2 bg-orange-100 text-orange-600 rounded-lg"><Database size={20} /></span>
-                     데이터 관리
+                   <h4 className="flex items-center gap-3 text-xl font-black text-slate-900 dark:text-slate-100 mb-6 brand-font">
+                     <div className="p-3 bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 rounded-2xl shadow-inner"><Database size={24} /></div>
+                     데이터 인프라 및 관리
                   </h4>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-slate-700 p-4 rounded-xl leading-relaxed">
+                  <p className="text-base font-bold text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl leading-relaxed border border-slate-100 dark:border-slate-800 shadow-inner">
                     {selectedApp.detailedDesign.dataStructure}
                   </p>
                 </div>
 
                 <div>
-                   <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                     <span className="p-2 bg-purple-100 text-purple-600 rounded-lg"><Sparkles size={20} /></span>
-                     AI 특별 기능
+                   <h4 className="flex items-center gap-3 text-xl font-black text-slate-900 dark:text-slate-100 mb-6 brand-font">
+                     <div className="p-3 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-2xl shadow-inner"><Sparkles size={24} /></div>
+                     AI 기반 인텔리전스 기능
                   </h4>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                       {selectedApp.detailedDesign.aiFeatures.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <span className="text-purple-500 mt-0.5">✦</span> {f}
+                        <li key={i} className="flex items-start gap-3 text-base font-bold text-slate-700 dark:text-slate-300 bg-white/40 dark:bg-slate-900/40 p-3 rounded-xl border border-purple-50 dark:border-purple-900/30">
+                            <Bot className="text-purple-500 w-5 h-5 mt-1 flex-shrink-0" /> {f}
                         </li>
                       ))}
                   </ul>
@@ -207,75 +201,110 @@ ${promptData.finalRequest}
               </div>
             </div>
 
-            {/* Flow */}
-            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-700">
-                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <span className="p-2 bg-teal-100 text-teal-600 rounded-lg"><Workflow size={20} /></span>
-                    사용 흐름
+            <div className="mt-12 pt-10 border-t border-slate-100 dark:border-slate-700">
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-6 brand-font flex items-center gap-3">
+                    <div className="p-3 bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 rounded-2xl shadow-inner"><Workflow size={24} /></div>
+                    사용자 경험 시나리오 (Flow)
                 </h4>
-                <div className="bg-teal-50/50 dark:bg-slate-700/50 p-5 rounded-xl border border-teal-100 dark:border-slate-600 text-center font-bold text-teal-800 dark:text-teal-200">
+                <div className="bg-teal-50/50 dark:bg-teal-950/20 p-8 rounded-3xl border border-teal-100 dark:border-teal-900/50 text-center font-black text-teal-800 dark:text-teal-200 text-lg leading-relaxed shadow-inner">
                     {selectedApp.detailedDesign.flow}
                 </div>
             </div>
           </section>
 
-          {/* Prompt Section */}
-          <section className="bg-gray-900 dark:bg-black rounded-[2rem] p-2 shadow-2xl ring-4 ring-gray-100 dark:ring-gray-800 overflow-hidden">
-             <div className="bg-gray-800 rounded-t-[1.5rem] px-6 py-4 flex items-center justify-between">
-                <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
+          {/* 프롬프트 출력 섹션 */}
+          <section className="bg-slate-950 rounded-[3rem] p-3 shadow-3xl ring-8 ring-slate-100 dark:ring-slate-900 overflow-hidden">
+             <div className="bg-slate-900 rounded-t-[2.5rem] px-8 py-5 flex items-center justify-between">
+                <div className="flex gap-2.5">
+                    <div className="w-4 h-4 rounded-full bg-red-500/80 shadow-lg shadow-red-500/20" />
+                    <div className="w-4 h-4 rounded-full bg-amber-500/80 shadow-lg shadow-amber-500/20" />
+                    <div className="w-4 h-4 rounded-full bg-emerald-500/80 shadow-lg shadow-emerald-500/20" />
                 </div>
-                <div className="text-gray-400 font-mono text-xs uppercase tracking-widest font-bold">Generated Prompt</div>
+                <div className="text-slate-500 font-mono text-[10px] uppercase tracking-[0.3em] font-black">AI GENERATED PROMPT v2.0</div>
              </div>
              
-             <div className="p-6 md:p-8 font-mono text-sm relative">
-                <div className="absolute top-4 right-6 text-green-400 text-xs animate-pulse">● Ready to Copy</div>
-                <div className="text-gray-300 space-y-4 max-h-80 overflow-y-auto custom-scrollbar pr-2">
-                    <p className="text-purple-400"># Role: Senior Frontend Engineer</p>
-                    <p className="text-blue-300"># App Name: <span className="text-white">{selectedApp.prompt.appName}</span></p>
-                    <p className="text-gray-500">// 복사 버튼을 누르면 전체 코드가 복사됩니다.</p>
-                    <p className="text-gray-400 whitespace-pre-wrap opacity-70 blur-[1px] select-none">
-                        {selectedApp.prompt.requirements.substring(0, 200)}...
-                    </p>
+             <div className="p-10 md:p-14 font-mono text-sm relative">
+                <div className="absolute top-6 right-10 text-emerald-400 text-xs font-black animate-pulse flex items-center gap-2 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/30">
+                   <div className="w-2 h-2 rounded-full bg-emerald-400" /> SYSTEM ONLINE
+                </div>
+                <div className="text-slate-300 space-y-6 max-h-96 overflow-y-auto custom-scrollbar pr-4">
+                    <p className="text-purple-400 font-black"># Role: Senior Frontend Engineer</p>
+                    <p className="text-sky-300 font-black"># App Name: <span className="text-white bg-sky-500/20 px-2 rounded">{selectedApp.prompt.appName}</span></p>
+                    <div className="space-y-4 opacity-70 blur-[0.5px] select-none pointer-events-none">
+                        <p className="text-slate-500">// {selectedApp.prompt.purpose}</p>
+                        <p className="text-slate-400 whitespace-pre-wrap">
+                            {selectedApp.prompt.requirements.substring(0, 400)}...
+                        </p>
+                    </div>
                 </div>
 
                 <button 
-                onClick={handleCopyPrompt}
-                className="mt-6 w-full bg-white text-gray-900 font-black text-lg py-4 rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 transform hover:scale-[1.01] active:scale-[0.99]"
-              >
-                {copied ? <Check className="w-5 h-5 text-green-600" /> : <Clipboard className="w-5 h-5" />}
-                {copied ? "복사 완료! 이제 붙여넣기만 하세요" : "프롬프트 복사하기"}
-              </button>
+                  onClick={handleCopyPrompt}
+                  className={`mt-10 w-full font-black text-xl py-6 rounded-3xl transition-all transform active:scale-95 flex items-center justify-center gap-4 shadow-2xl
+                    ${copied 
+                      ? "bg-emerald-500 text-white shadow-emerald-500/30" 
+                      : "bg-white text-slate-900 hover:bg-slate-100 hover:-translate-y-1 shadow-white/10"}`}
+                >
+                  {copied ? <Check className="w-7 h-7" strokeWidth={3} /> : <Clipboard className="w-7 h-7" />}
+                  {copied ? "클립보드에 복사되었습니다!" : "마법의 프롬프트 복사하기"}
+                </button>
              </div>
           </section>
 
-          {/* New Feature: Friendly Chat Guide */}
-          <section className="mt-12 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800/30 rounded-3xl p-6 md:p-8 relative">
-             <div className="absolute -top-6 left-8 bg-yellow-400 text-yellow-900 font-bold px-4 py-2 rounded-full shadow-md flex items-center gap-2">
-                 <Smile size={18} /> Eva의 꿀팁
+          {/* [추가] 상세 가이드라인 섹션 (채팅 스타일) */}
+          <section className="mt-20 space-y-8 max-w-4xl mx-auto">
+             <div className="text-center">
+                 <h4 className="text-3xl font-black brand-font text-slate-900 dark:text-white mb-2">데미안님을 위한 Eva의 친절한 가이드</h4>
+                 <p className="text-slate-500 dark:text-slate-400 font-bold italic">"이제 거의 다 왔어요! 이대로만 따라하시면 나만의 앱이 완성됩니다."</p>
              </div>
-             <h4 className="mt-2 text-xl font-bold text-gray-800 dark:text-yellow-100 mb-4 brand-font">
-                 "데미안님, 이제 어떻게 하면 될까요?"
-             </h4>
-             <div className="space-y-4 text-gray-700 dark:text-gray-300">
-                 <div className="flex gap-4 items-start">
-                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-200 text-yellow-800 flex items-center justify-center font-bold">1</span>
-                     <p>위의 <strong>'프롬프트 복사하기'</strong> 버튼을 누르셨나요? 그럼 절반은 성공입니다!</p>
+
+             <div className="space-y-6">
+                 {/* 가이드 step 1 */}
+                 <div className="flex gap-4 items-start group">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0 font-black text-lg shadow-sm group-hover:scale-110 transition-transform">1</div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] rounded-tl-none shadow-xl border border-slate-100 dark:border-slate-700 flex-1">
+                        <p className="text-slate-800 dark:text-slate-200 font-bold mb-2 flex items-center gap-2">
+                           <Clipboard size={18} className="text-indigo-500" /> 프롬프트 복사하기
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                           위의 검정색 박스 하단에 있는 <strong>'프롬프트 복사하기'</strong> 버튼을 클릭해주세요. 이 버튼 하나에 앱을 만드는 모든 마법의 주문이 담겨 있습니다.
+                        </p>
+                    </div>
                  </div>
-                 <div className="flex gap-4 items-start">
-                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-200 text-yellow-800 flex items-center justify-center font-bold">2</span>
-                     <p>
-                         <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold inline-flex items-center gap-1">
-                             Google AI Studio <ExternalLink size={14}/>
-                         </a>
-                         에 접속해서 로그인해주세요.
-                     </p>
+
+                 {/* 가이드 step 2 */}
+                 <div className="flex gap-4 items-start group">
+                    <div className="w-10 h-10 rounded-2xl bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 flex items-center justify-center flex-shrink-0 font-black text-lg shadow-sm group-hover:scale-110 transition-transform">2</div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] rounded-tl-none shadow-xl border border-slate-100 dark:border-slate-700 flex-1">
+                        <p className="text-slate-800 dark:text-slate-200 font-bold mb-2 flex items-center gap-2">
+                           <ExternalLink size={18} className="text-pink-500" /> 제작 도구로 이동
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                           <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-indigo-600 dark:text-indigo-400 underline font-black hover:text-indigo-500">Google AI Studio</a>에 접속하여 로그인해주세요. 이곳이 바로 데미안님의 앱이 태어날 공방입니다.
+                        </p>
+                    </div>
                  </div>
-                 <div className="flex gap-4 items-start">
-                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-yellow-200 text-yellow-800 flex items-center justify-center font-bold">3</span>
-                     <p>채팅창에 <strong>붙여넣기(Ctrl+V)</strong> 하고 엔터를 치면, 마법처럼 앱이 만들어집니다. <br/> <span className="text-sm text-gray-500 dark:text-gray-400">*모바일에서도 동일해요!</span></p>
+
+                 {/* 가이드 step 3 */}
+                 <div className="flex gap-4 items-start group">
+                    <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0 font-black text-lg shadow-sm group-hover:scale-110 transition-transform">3</div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] rounded-tl-none shadow-xl border border-slate-100 dark:border-slate-700 flex-1">
+                        <p className="text-slate-800 dark:text-slate-200 font-bold mb-2 flex items-center gap-2">
+                           <Rocket size={18} className="text-amber-500" /> 붙여넣고 엔터!
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                           채팅창에 복사한 내용을 <strong>붙여넣기(Ctrl+V)</strong> 하고 엔터를 누르세요. AI가 코드를 작성하기 시작할 거예요. 코드가 다 나오면 오른쪽 상단의 'Preview' 버튼으로 바로 확인해보세요!
+                        </p>
+                    </div>
+                 </div>
+
+                 {/* 마지막 격려 메시지 */}
+                 <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 rounded-[2.5rem] shadow-2xl transform hover:scale-[1.01] transition-all">
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2.4rem] text-center">
+                        <MessageSquareQuote className="w-10 h-10 text-indigo-500 mx-auto mb-4 opacity-50" />
+                        <h5 className="text-2xl font-black brand-font text-slate-900 dark:text-white mb-2">"데미안님은 상상만 하세요, 나머지는 Eva가 돕겠습니다."</h5>
+                        <p className="text-slate-500 dark:text-slate-400 font-bold">혹시 더 수정하고 싶은 부분이 있다면, 다시 처음으로 돌아가 정보를 수정해 보세요!</p>
+                    </div>
                  </div>
              </div>
           </section>
